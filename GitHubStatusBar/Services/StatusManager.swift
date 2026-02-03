@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import AppKit
 import UserNotifications
 import ServiceManagement
 
@@ -15,13 +16,21 @@ class StatusManager: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var launchAtLogin: Bool = false
+    @Published var tintMenuBar: Bool = false {
+        didSet {
+            UserDefaults.standard.set(tintMenuBar, forKey: "tintMenuBar")
+            updateMenuBarTint()
+        }
+    }
     
     private var timer: Timer?
+    private var tintWindow: NSWindow?
     private var previousStatus: StatusIndicator = .unknown
     private let refreshInterval: TimeInterval = 60 // 1 minute
     
     private init() {
         launchAtLogin = SMAppService.mainApp.status == .enabled
+        tintMenuBar = UserDefaults.standard.bool(forKey: "tintMenuBar")
         requestNotificationPermission()
         startPolling()
     }
@@ -71,6 +80,9 @@ class StatusManager: ObservableObject {
             if previousStatus != .unknown && previousStatus != currentStatus {
                 sendStatusChangeNotification()
             }
+            
+            // Update menu bar tint
+            updateMenuBarTint()
             
         } catch {
             errorMessage = error.localizedDescription
@@ -154,5 +166,54 @@ class StatusManager: ObservableObject {
     
     func quit() {
         NSApplication.shared.terminate(nil)
+    }
+    
+    // MARK: - Menu Bar Tint
+    
+    func updateMenuBarTint() {
+        // Remove existing tint window
+        tintWindow?.orderOut(nil)
+        tintWindow = nil
+        
+        // Only show tint if enabled and status is minor/major/critical
+        guard tintMenuBar else { return }
+        
+        let tintColor: NSColor?
+        switch currentStatus {
+        case .minor:
+            tintColor = NSColor.yellow.withAlphaComponent(0.15)
+        case .major, .critical:
+            tintColor = NSColor.red.withAlphaComponent(0.15)
+        default:
+            tintColor = nil
+        }
+        
+        guard let color = tintColor,
+              let screen = NSScreen.main else { return }
+        
+        // Create a window that covers the menu bar
+        let menuBarHeight = NSApplication.shared.mainMenu?.menuBarHeight ?? 24
+        let windowFrame = NSRect(
+            x: screen.frame.origin.x,
+            y: screen.frame.maxY - menuBarHeight,
+            width: screen.frame.width,
+            height: menuBarHeight
+        )
+        
+        let window = NSWindow(
+            contentRect: windowFrame,
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.level = .statusBar
+        window.backgroundColor = color
+        window.isOpaque = false
+        window.ignoresMouseEvents = true
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.orderFrontRegardless()
+        
+        tintWindow = window
     }
 }

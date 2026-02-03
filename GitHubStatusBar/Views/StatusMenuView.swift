@@ -147,6 +147,10 @@ struct StatusMenuView: View {
             .toggleStyle(.checkbox)
             .font(.system(size: 12))
             
+            Toggle("Tint Menu Bar on Issues", isOn: $statusManager.tintMenuBar)
+                .toggleStyle(.checkbox)
+                .font(.system(size: 12))
+            
             Divider()
                 .padding(.vertical, 4)
             

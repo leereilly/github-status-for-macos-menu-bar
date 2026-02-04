@@ -2,6 +2,8 @@
 
 A native macOS menu bar app that monitors GitHub's service status in real-time.
 
+![](status.webp)
+
 ![macOS](https://img.shields.io/badge/macOS-13.0+-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.0-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)

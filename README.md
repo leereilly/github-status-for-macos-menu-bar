@@ -2,6 +2,8 @@
 
 A native macOS menu bar app that monitors GitHub's service status in real-time.
 
+Built using [GitHub Copilot CLI](https://github.com/features/copilot/cli) for the [GitHub Copilot CLI Challenge](https://dev.to/leereilly/is-github-having-a-good-day-a-macos-menu-bar-app-built-with-copilot-cli-2d8k).
+
 ![](status.webp)
 
 ![macOS](https://img.shields.io/badge/macOS-13.0+-blue)

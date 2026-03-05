@@ -11,13 +11,23 @@ private struct MenuBarLabel: View {
             .symbolRenderingMode(.palette)
             .foregroundStyle(statusManager.currentStatus.color)
             .opacity(pulseOpacity)
-            .onChange(of: statusManager.isAnimating) { isAnimating in
-                if isAnimating && !reduceMotion {
-                    withAnimation(.easeInOut(duration: 1.25).repeatForever(autoreverses: true)) {
+            .onChange(of: statusManager.animationPhase) { phase in
+                switch phase {
+                case .fadingOut:
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        pulseOpacity = 0.0
+                    }
+                case .fadingIn:
+                    withAnimation(.easeIn(duration: 0.4)) {
+                        pulseOpacity = 1.0
+                    }
+                case .pulsing:
+                    guard !reduceMotion else { return }
+                    withAnimation(.easeInOut(duration: 0.625).repeatForever(autoreverses: true)) {
                         pulseOpacity = 0.35
                     }
-                } else {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                case .idle:
+                    withAnimation(.easeInOut(duration: 1.0)) {
                         pulseOpacity = 1.0
                     }
                 }

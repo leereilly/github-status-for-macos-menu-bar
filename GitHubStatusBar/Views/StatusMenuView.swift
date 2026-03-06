@@ -2,6 +2,8 @@ import SwiftUI
 
 struct StatusMenuView: View {
     @ObservedObject var statusManager: StatusManager
+    @State private var headerPulseOpacity: Double = 1.0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -47,6 +49,28 @@ struct StatusMenuView: View {
             Image(systemName: statusManager.currentStatus.symbolName)
                 .foregroundColor(statusManager.currentStatus.color)
                 .font(.system(size: 20))
+                .opacity(headerPulseOpacity)
+                .onChange(of: statusManager.animationPhase) { phase in
+                    switch phase {
+                    case .fadingOut:
+                        withAnimation(.easeOut(duration: 0.4)) {
+                            headerPulseOpacity = 0.0
+                        }
+                    case .fadingIn:
+                        withAnimation(.easeIn(duration: 0.4)) {
+                            headerPulseOpacity = 1.0
+                        }
+                    case .pulsing:
+                        guard !reduceMotion else { return }
+                        withAnimation(.easeInOut(duration: 0.625).repeatForever(autoreverses: true)) {
+                            headerPulseOpacity = 0.35
+                        }
+                    case .idle:
+                        withAnimation(.easeInOut(duration: 1.0)) {
+                            headerPulseOpacity = 1.0
+                        }
+                    }
+                }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(statusManager.statusDescription)

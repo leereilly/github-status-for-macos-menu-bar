@@ -46,9 +46,12 @@ struct StatusMenuView: View {
     
     private var statusHeader: some View {
         HStack(spacing: 10) {
-            Image(systemName: statusManager.currentStatus.symbolName)
+            Image("MenuBarIcon")
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 20, height: 20)
                 .foregroundColor(statusManager.currentStatus.color)
-                .font(.system(size: 20))
                 .opacity(headerPulseOpacity)
                 .onChange(of: statusManager.animationPhase) { phase in
                     switch phase {

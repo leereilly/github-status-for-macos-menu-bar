@@ -1,4 +1,23 @@
 import SwiftUI
+import AppKit
+
+/// Creates a tinted copy of the MenuBarIcon asset.
+/// macOS forces template rendering on menu bar images, ignoring SwiftUI
+/// foregroundStyle, so we tint the bitmap ourselves and mark it non-template.
+private func tintedMenuBarIcon(color: NSColor) -> NSImage {
+    guard let base = NSImage(named: "MenuBarIcon") else {
+        return NSImage()
+    }
+    let size = NSSize(width: 18, height: 18)
+    let tinted = NSImage(size: size, flipped: false) { rect in
+        base.draw(in: rect)
+        color.set()
+        rect.fill(using: .sourceAtop)
+        return true
+    }
+    tinted.isTemplate = false
+    return tinted
+}
 
 /// A dedicated view for the menu bar label that supports pulse animation on status change.
 private struct MenuBarLabel: View {
@@ -7,9 +26,7 @@ private struct MenuBarLabel: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Image(systemName: statusManager.currentStatus.symbolName)
-            .symbolRenderingMode(.palette)
-            .foregroundStyle(statusManager.currentStatus.color)
+        Image(nsImage: tintedMenuBarIcon(color: NSColor(statusManager.currentStatus.color)))
             .opacity(pulseOpacity)
             .onChange(of: statusManager.animationPhase) { phase in
                 switch phase {

@@ -28,7 +28,7 @@ enum StatusIndicator: String, Codable {
     }
     
     var symbolName: String {
-        return "circle.fill"
+        return "MenuBarIcon"
     }
     
     init(from decoder: Decoder) throws {

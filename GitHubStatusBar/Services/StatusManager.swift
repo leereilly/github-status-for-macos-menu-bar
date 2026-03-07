@@ -131,6 +131,15 @@ class StatusManager: ObservableObject {
         let shouldFadeOut = currentStatus != .unknown
         
         animationTask = Task { @MainActor in
+            // Always restore a stable state when the task finishes or is cancelled.
+            defer {
+                if !Task.isCancelled {
+                    animationPhase = .idle
+                    stopTintPulse()
+                    updateMenuBarTint()
+                }
+            }
+
             // Phase 1: Fade out old color (skip on first load from .unknown)
             if shouldFadeOut {
                 animationPhase = .fadingOut
@@ -177,10 +186,6 @@ class StatusManager: ObservableObject {
                     guard !Task.isCancelled else { return }
                 }
             }
-            
-            animationPhase = .idle
-            stopTintPulse()
-            updateMenuBarTint() // Reset to static tint state
         }
     }
     

@@ -22,10 +22,10 @@ private struct MenuBarLabel: View {
                         pulseOpacity = 1.0
                     }
                 case .pulsing:
-                    guard !reduceMotion else { return }
-                    withAnimation(.easeInOut(duration: 0.625).repeatForever(autoreverses: true)) {
-                        pulseOpacity = 0.35
-                    }
+                    // Do not animate the menu bar icon label with repeatForever — doing so
+                    // causes continuous SwiftUI re-renders that break MenuBarExtra hit-testing,
+                    // making the icon unclickable. The tint window handles pulsing independently.
+                    break
                 case .idle:
                     withAnimation(.easeInOut(duration: 1.0)) {
                         pulseOpacity = 1.0

@@ -38,6 +38,13 @@ The app displays a colored circle in your menu bar:
 
 ## Installation
 
+### Homebrew
+
+```
+brew tap leereilly/github-status-bar
+brew install --cask github-status-bar
+```
+
 ### From Source
 
 1. Clone the repository:
